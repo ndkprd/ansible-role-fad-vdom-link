@@ -6,13 +6,41 @@
   gather_facts: false
   connection: local
   vars:
+    # system vdom configuration
     fad_vdoms:
-    - name: development
-      status: enable
-    - name: staging
-      status: enable
-    - name: production
-      status: enable
+      - name: development
+        status: enable
+      - name: staging
+        status: enable
+      - name: production
+        status: enable
+
+    # system vdom-link configuration
+    fad_vdom_links:
+      - name: to-prd
+        type: ethernet
+        src_vdom: root
+        src_vdom_ipv4: '172.20.104.1/30'
+        src_vdom_ipv6: '::/0'
+        dst_vdom: production
+        dst_vdom_ipv4: '172.20.104.2/30'
+        dst_vdom_ipv6: '::/0'
+      - name: to-stg
+        type: ethernet
+        src_vdom: root
+        src_vdom_ipv4: '172.20.104.5/30'
+        src_vdom_ipv6: '::/0'
+        dst_vdom: staging
+        dst_vdom_ipv4: '172.20.104.6/30'
+        dst_vdom_ipv6: '::/0'
+      - name: to-dev
+        type: ethernet
+        src_vdom: root
+        src_vdom_ipv4: '172.20.104.13/30'
+        src_vdom_ipv6: '::/0'
+        dst_vdom: development
+        dst_vdom_ipv4: '172.20.104.14/30'
+        dst_vdom_ipv6: '::/0'
 
   roles:
     - ndkprd.fad_vdom

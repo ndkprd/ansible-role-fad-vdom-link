@@ -11,4 +11,5 @@ galaxy_info:
 
   galaxy_tags: [fortinet, fortiadc]
 
-dependencies: []
+dependencies:
+  - ndkprd.fad_vdom

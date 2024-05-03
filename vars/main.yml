@@ -4,6 +4,7 @@ fad_base_url: "https://{{ ansible_host }}/api"
 
 fad_api_endpoint:
   system_vdom_link: "/system_vdom_link?mkey=%s"
+  system_interface: "/system_interface?mkey=%s"
 
 fad_api_uri_params:
   body_format: json

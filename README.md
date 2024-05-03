@@ -67,6 +67,11 @@ Playbook:
     - ndkprd.fad_vdom_link
 ```
 
+Limitation
+----------
+
+For some reason I can't use the same IP Address twice for VDOM Link (e.g. you deleted the VDOM Link once and want to recreate the VDOM Link again). Currently I just keep chaning them for every iteration.
+
 License
 -------
 

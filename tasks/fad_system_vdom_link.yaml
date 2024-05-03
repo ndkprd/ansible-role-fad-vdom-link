@@ -3,18 +3,18 @@
 - name: Print out the VDOM Link existing values.
   ansible.builtin.debug:
     msg: >
-      {{ (lookup('url', vdom_link_api_endpoint
-      % (vdom.name), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}
-  loop: "{{ vdom_links }}"
+      {{ (lookup('url', fad_vdom_link_api_endpoint
+      % (vdom_link.src_vdom), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}
+  loop: "{{ fad_vdom_links }}"
   loop_control:
-    loop_var: vdom
-    label: "{{ vdom.name }}"
+    loop_var: vdom_link
+    label: "{{ vdom_link.src_vdom }}"
   tags: [debug]
 
 - name: Create new VDOM Link entry if it's not found.
   ansible.builtin.uri:
     method: POST
-    url: "{{ vdom_link_api_endpoint | format(vdom.name) }}"
+    url: "{{ fad_vdom_link_api_endpoint | format(vdom_link.name) }}"
     body_format: "{{ fad_api_uri_params.body_format }}"
     validate_certs: "{{ fad_api_uri_params.validate_certs }}"
     return_content: "{{ fad_api_uri_params.return_content }}"
@@ -22,17 +22,17 @@
     headers: "{{ fad_api_header }}"
     body: |
       {
-        "mkey": "{{ vdom.name }}",
-        "type": "{{ vdom.type | default('ethernet') }}"
+        "mkey": "{{ vdom_link.name }}",
+        "type": "{{ vdom_link.type | default('ethernet') }}"
       }
   register: vdom_link_post_results
-  loop: "{{ vdom_links }}"
+  loop: "{{ fad_vdom_links }}"
   loop_control:
-    loop_var: vdom
-    label: "{{ vdom.name }}"
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
   when: >
-    (lookup('url', vdom_link_api_endpoint
-    % (vdom.name), validate_certs=false, split_lines=false,
+    (lookup('url', fad_vdom_link_api_endpoint
+    % (vdom_link.name), validate_certs=false, split_lines=false,
     headers=fad_api_header) | from_json).get('payload').mkey is undefined
   changed_when: "vdom_link_post_results.json.payload == 0"
   failed_when: vdom_link_post_results.json.payload not in [0, -15]
@@ -40,7 +40,7 @@
 - name: Update VDOM Link entry if it's exist and any of its value is changed.
   ansible.builtin.uri:
     method: PUT
-    url: "{{ vdom_link_api_endpoint | format(vdom.name) }}"
+    url: "{{ fad_vdom_link_api_endpoint | format(vdom_link.name) }}"
     body_format: "{{ fad_api_uri_params.body_format }}"
     validate_certs: "{{ fad_api_uri_params.validate_certs }}"
     return_content: "{{ fad_api_uri_params.return_content }}"
@@ -48,31 +48,31 @@
     headers: "{{ fad_api_header }}"
     body: |
       {
-        "mkey": "{{ vdom.name }}",
-        "type": "{{ vdom.type | default('ethernet') }}"
+        "mkey": "{{ vdom_link.name }}",
+        "type": "{{ vdom_link.type | default('ethernet') }}"
       }
   register: vdom_link_put_results
-  loop: "{{ vdom_links }}"
+  loop: "{{ fad_vdom_links }}"
   loop_control:
-    loop_var: vdom
-    label: "{{ vdom.name }}"
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
   when:
-    - (lookup('url', vdom_link_api_endpoint
-      % (vdom.name), validate_certs=false, split_lines=false,
+    - (lookup('url', fad_vdom_link_api_endpoint
+      % (vdom_link.name), validate_certs=false, split_lines=false,
       headers=fad_api_header) | from_json).get('payload')['mkey'] is defined
-    - (lookup('url', vdom_link_api_endpoint
-      % (vdom.name), validate_certs=false, split_lines=false,
-      headers=fad_api_header) | from_json).get('payload')['status'] != vdom.status | default('enabled')
+    - (lookup('url', fad_vdom_link_api_endpoint
+      % (vdom_link.name), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['type'] != vdom_link.type | default('ethernet')
   changed_when: "vdom_link_put_results.json.payload == 0"
   failed_when: "vdom_link_put_results.json.payload != 0 and vdom_link_put_results.json.payload != -15"
 
 - name: Print out the VDOM Link values after create/update task.
   ansible.builtin.debug:
     msg: >
-      {{ (lookup('url', vdom_link_api_endpoint
-      % (vdom.name), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}
-  loop: "{{ vdom_links }}"
+      {{ (lookup('url', fad_vdom_link_api_endpoint
+      % (vdom_link.name), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}
+  loop: "{{ fad_vdom_links }}"
   loop_control:
-    loop_var: vdom
-    label: "{{ vdom.name }}"
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
   tags: [debug]

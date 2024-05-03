@@ -1,0 +1,101 @@
+---
+
+- name: Print out the VDOM Link Interface existing values.
+  ansible.builtin.debug:
+    msg:
+      - Source VDOM: "{{ (lookup('url', fad_vdom_link_interface_api_endpoint
+          % (vdom_link.name + '0'), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}"
+      - Destination VDOM: "{{ (lookup('url', fad_vdom_link_interface_api_endpoint
+          % (vdom_link.name + '1'), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}"
+  loop: "{{ fad_vdom_links }}"
+  loop_control:
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
+  tags: [debug]
+
+- name: Update VDOM Link Interface source entry.
+  ansible.builtin.uri:
+    method: PUT
+    url: "{{ fad_vdom_link_interface_api_endpoint | format(vdom_link.name + '0') }}"
+    body_format: "{{ fad_api_uri_params.body_format }}"
+    validate_certs: "{{ fad_api_uri_params.validate_certs }}"
+    return_content: "{{ fad_api_uri_params.return_content }}"
+    status_code: "{{ fad_api_uri_params.status_code }}"
+    headers: "{{ fad_api_header }}"
+    body: |
+      {
+        "allowaccess": "ping ",
+        "vdom": "{{ vdom_link.src_vdom }}",
+        "ip": "{{ vdom_link.src_vdom_ipv4 }}",
+        "ip6": "{{ vdom_link.src_vdom_ipv6 }}"
+      }
+  register: vdom_link_put_results
+  loop: "{{ fad_vdom_links }}"
+  loop_control:
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
+  when:
+    - (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '0'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['mkey'] is defined
+    - (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '0'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['ip'] != vdom_link.src_vdom_ipv4 or
+      (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '0'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['ip6'] != vdom_link.src_vdom_ipv6 or
+      (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '0'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['vdom'] != vdom_link.src_vdom
+  changed_when: "vdom_link_put_results.json.payload == 0"
+  failed_when: "vdom_link_put_results.json.payload != 0 and vdom_link_put_results.json.payload != -15"
+
+- name: Update VDOM Link Interface destination entry.
+  ansible.builtin.uri:
+    method: PUT
+    url: "{{ fad_vdom_link_interface_api_endpoint | format(vdom_link.name + '1') }}"
+    body_format: "{{ fad_api_uri_params.body_format }}"
+    validate_certs: "{{ fad_api_uri_params.validate_certs }}"
+    return_content: "{{ fad_api_uri_params.return_content }}"
+    status_code: "{{ fad_api_uri_params.status_code }}"
+    headers: "{{ fad_api_header }}"
+    body: |
+      {
+        "allowaccess": "ping ",
+        "vdom": "{{ vdom_link.dst_vdom }}",
+        "ip": "{{ vdom_link.dst_vdom_ipv4 }}",
+        "ip6": "{{ vdom_link.dst_vdom_ipv6 | default('::/0') }}"
+      }
+  register: vdom_link_put_results
+  loop: "{{ fad_vdom_links }}"
+  loop_control:
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
+  when:
+    - (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '1'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['mkey'] is defined
+    - (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '1'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['ip'] != vdom_link.dst_vdom_ipv4 or
+      (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '1'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['ip6'] != vdom_link.dst_vdom_ipv6 or
+      (lookup('url', fad_vdom_link_interface_api_endpoint
+      % (vdom_link.name + '1'), validate_certs=false, split_lines=false,
+      headers=fad_api_header) | from_json).get('payload')['vdom'] != vdom_link.dst_vdom
+  changed_when: "vdom_link_put_results.json.payload == 0"
+  failed_when: "vdom_link_put_results.json.payload != 0 and vdom_link_put_results.json.payload != -15"
+
+- name: Print out the VDOM Link Interface existing values.
+  ansible.builtin.debug:
+    msg:
+      - Source VDOM: "{{ (lookup('url', fad_vdom_link_interface_api_endpoint
+          % (vdom_link.name + '0'), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}"
+      - Destination VDOM: "{{ (lookup('url', fad_vdom_link_interface_api_endpoint
+          % (vdom_link.name + '1'), validate_certs=false, split_lines=false, headers=fad_api_header) | from_json).get('payload') }}"
+  loop: "{{ fad_vdom_links }}"
+  loop_control:
+    loop_var: vdom_link
+    label: "{{ vdom_link.name }}"
+  tags: [debug]
