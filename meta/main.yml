@@ -1,0 +1,14 @@
+---
+
+galaxy_info:
+  author: ndkprd
+  description: Ansible role to manage Fortinet's FortiADC VDOM links.
+  role_name: fad_vdom_link
+
+  license: MIT
+
+  min_ansible_version: '2.12'
+
+  galaxy_tags: [fortinet, fortiadc]
+
+dependencies: []

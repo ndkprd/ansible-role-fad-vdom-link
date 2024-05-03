@@ -1,0 +1,18 @@
+---
+
+- name: Update/create FortiADC resources.
+  hosts: all
+  become: false
+  gather_facts: false
+  connection: local
+  vars:
+    fad_vdoms:
+    - name: development
+      status: enable
+    - name: staging
+      status: enable
+    - name: production
+      status: enable
+
+  roles:
+    - ndkprd.fad_vdom

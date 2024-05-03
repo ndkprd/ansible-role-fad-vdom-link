@@ -1,0 +1,16 @@
+---
+
+fad_base_url: "https://{{ ansible_host }}/api"
+
+fad_api_endpoint:
+  system_vdom_link: "/system_vdom_link?mkey=%s"
+
+fad_api_uri_params:
+  body_format: json
+  validate_certs: false
+  return_content: true
+  status_code: 200
+
+fad_api_header:
+  'Content-Type': 'application/json'
+  'APITOKEN': '{{ fad_apitoken }}'
